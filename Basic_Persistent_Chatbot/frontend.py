@@ -36,10 +36,11 @@ if user_input:
 
     try:
 
-        response = chatbot.invoke({"messages": [HumanMessage(content=user_input)]}, config=CONFIG)
-        st.session_state["messages"].append({"role": "assistant", "content": response['messages'][-1].content})
         with st.chat_message("assistant"):
-            st.write(response['messages'][-1].content)
+            ai_message = st.write_stream(message_chunk.content for message_chunk, metadata in chatbot.stream({"messages": [HumanMessage(content=user_input)]}, config=CONFIG, stream_mode="messages"))
+
+
+        st.session_state["messages"].append({"role": "assistant", "content": ai_message})
 
     except Exception as e:
         st.session_state["messages"].append({"role": "assistant", "content": str(e)})

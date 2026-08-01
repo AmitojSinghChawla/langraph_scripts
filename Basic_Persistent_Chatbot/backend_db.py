@@ -39,7 +39,7 @@ def chatbot(state: chatstate):
 # using langgraph to structure the flow of the graph
 
 graph = StateGraph(chatstate)
-checkpointer = SqliteSaver(conn=conn)
+checkpointer = SqliteSaver(conn=conn) # now the checkpointer stores the workflow state in a sql lite database which is persistant
 graph.add_node("chat", chatbot)
 graph.add_edge(START, "chat")
 graph.add_edge("chat", END)

@@ -1,8 +1,8 @@
 import streamlit as st
-from backend import chatbot,title_model
+from backend_db import chatbot
 from langchain_core.messages import HumanMessage
 import uuid
-
+from backend_db import get_all_created_thread
 
 # ************************************* Utility Functions ***************************
 def generate_thread_id():
@@ -40,7 +40,7 @@ if "thread_id" not in st.session_state:
     st.session_state["thread_id"] = generate_thread_id()
 
 if "chat_threads" not in st.session_state:
-    st.session_state["chat_threads"] = []
+    st.session_state["chat_threads"] = get_all_created_thread() # this would return all the unique thread_ids created in database every time a new chat was created in frontend
 
 add_chat_thread(st.session_state["thread_id"])
 

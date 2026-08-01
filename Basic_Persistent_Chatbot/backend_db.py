@@ -3,11 +3,12 @@ from typing import TypedDict, Literal, Annotated
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage, HumanMessage
 from dotenv import load_dotenv
-from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.graph.message import (
-    add_messages,
-)  # this import is used for adding a reducer function. Although operator.add also works but this inbuilt function is more optimised to handle state chnages .
+from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.graph.message import add_messages
+# this import is used for adding a reducer function. Although operator.add also works but this inbuilt function is more optimised to handle state chnages .
+import sqlite3
 
+conn = sqlite3.connect("chatbot.db", check_same_thread=False)
 load_dotenv()
 
 
@@ -38,7 +39,7 @@ def chatbot(state: chatstate):
 # using langgraph to structure the flow of the graph
 
 graph = StateGraph(chatstate)
-checkpointer = InMemorySaver()
+checkpointer = SqliteSaver(conn=conn)
 graph.add_node("chat", chatbot)
 graph.add_edge(START, "chat")
 graph.add_edge("chat", END)
@@ -46,20 +47,9 @@ graph.add_edge("chat", END)
 chatbot = graph.compile(checkpointer=checkpointer)
 
 
-thread_id = "1"
+def get_all_created_thread():
+    all_threads = set() # creates a hashset which only stores unique values and since we need only the unique threads from the list of checkpointer which contains redundant thread_ids recorded at every checkpoint.
+    for checkpoint in checkpointer.list(None): # checkpointer.list() returns a list of the saved checkpoints( AI and human messages at each checkpoint)
+        all_threads.add(checkpoint.config['configurable']['thread_id'])
 
-if __name__ == "__main__":
-
-    while True:
-        user_message = input("Type your message: ")
-
-        print("User:", user_message)
-
-        if user_message.strip().lower() in ["exit", "quit"]:
-            break
-        config = {"configurable": {"thread_id": thread_id}}
-        response = chatbot.invoke(
-            {"messages": [HumanMessage(content=user_message)]}, config=config
-        )
-
-        print("AI:", response["messages"][-1].content)
+    return list(all_threads)

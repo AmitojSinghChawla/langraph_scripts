@@ -86,7 +86,11 @@ for message in st.session_state["message_history"]:
         with st.chat_message("assistant"):
             st.write(content)
 
-CONFIG = {"configurable": {"thread_id": st.session_state["thread_id"]}}
+CONFIG = {"configurable": {"thread_id": st.session_state["thread_id"]},
+          "metadata":{
+              "thread_id": st.session_state["thread_id"]
+          },
+          "run_name": "chat_turn",}
 user_input = st.chat_input("Enter your message")
 
 if user_input:

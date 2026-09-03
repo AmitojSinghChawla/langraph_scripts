@@ -1,6 +1,7 @@
 from unstructured.partition.pdf import partition_pdf
 
-filepath= r'/MCP_RAG_BOT/ProvisionalDegree.pdf'
+filepath = r"/MCP_RAG_BOT/ProvisionalDegree.pdf"
+
 
 def create_chunks_from_pdf(file_path):
 
@@ -12,6 +13,7 @@ def create_chunks_from_pdf(file_path):
     # → elements is a flat list of Table and CompositeElement objects
     #   passed to table_text_segregation() and get_images() in ingest_pdfs()
     return elements
+
 
 elements = create_chunks_from_pdf(filepath)
 
